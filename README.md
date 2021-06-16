@@ -14,8 +14,48 @@ The publisher will send a notification to its subscriber(s) through an event but
 
 ## Steps
 1. Create the delegate in the publisher class
+````
+public delegate void VideoEncodedEventHandler(object source, VideoEventArgs args)
+````
 2. Create the event in the publisher class
+````
+public event VideoEncodedEventHandler VideoEncoded
+````
+or 1. and 2. combined
+````
+public EventHandler<VideoEventArgs> VideoEncoded;
+````
+1. and 2. a. Add a class that inherits from EventArgs that will be the data passed in the event
+````
+public class VideoEventArgs : EventArgs
+{
+  public Video Video { get; set; }
+}
+````
 3. Create a method that will raise the event
+````
+protected virtual void OnVideoEncoded(Video video)
+{
+  if (VideoEncoded != null)
+    VideoEncoded(this, new VideoEventArgs() { Video = video });
+}
+````
 4. Call the method in the publisher class
+````
+OnVideoEncoded(video);
+````
 5. Create the subscriber class(es) and create a method that will be raised when the publisher notifies its subscriber(s)
-6. Create the subscriptions
+````
+public void OnVideoEncoded(object source, VideoEventArgs e)
+{
+  Console.WriteLine("MailService: sending text " + e.Video.Title);
+}
+````
+6. Instantiate subscriber
+````
+var mailService = new MailService();
+````
+7. Add the subscription
+````
+videoEncoder.VideoEncoded += mailService.OnVideoEncoded;
+````
